@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.renderscript.ScriptGroup;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.spotify.android.appremote.api.ConnectionParams;
@@ -22,14 +23,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "com.example.appspotyprueba://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
 
-    //private boolean trackWasStarted = false;
+    private boolean isPlaying = false;
 
-    //ImageView buttonImage;
+    ImageView buttonImage;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //buttonImage = (ImageView) findViewById(R.id.bottomPlayPause);
+        buttonImage = (ImageView) findViewById(R.id.bPlayPause);
     }
 
     @Override
@@ -47,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d("MainActivity", "Connected! Yay!");
-                        //mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(MainActivity.this::handleTrackEnded);
 
                         // Now you can start interacting with App Remote
                         connected();
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
-    private void connected() {
+    private void connected(){
         // Play a playlist 6IyPKJq69D0Um2AOwprVbn
         mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:6IyPKJq69D0Um2AOwprVbn");
 
@@ -79,31 +79,25 @@ public class MainActivity extends AppCompatActivity {
                     if (track != null) {
                         Log.d("MainActivity", track.name + " by " + track.artist.name);
                     }
+                    if(playerState.isPaused){
+                        isPlaying = false;
+                        buttonImage.setBackgroundResource(R.drawable.play_music);
+                    }else{
+                        isPlaying = true;
+                        buttonImage.setBackgroundResource(R.drawable.pause_music);
+                    }
                 });
     }
-/*
-    private void handleTrackEnded(PlayerState playerState) {
-        setTrackWasStarted(playerState);
 
-        boolean isPaused = playerState.isPaused;
-        long position = playerState.playbackPosition;
-        boolean hasEnded = trackWasStarted && isPaused && position == 0L;
-
-        if (hasEnded) {
-            trackWasStarted = false;
-            buttonImaage.setBackgroundResource(R.drawable.play_music);
-
+    private void onClickBPlayPause(View player){
+        if(!isPlaying) {
+            mSpotifyAppRemote.getPlayerApi().resume();
+            buttonImage.setBackgroundResource(R.drawable.pause_music);
+            isPlaying = true;
+        }else{
+            mSpotifyAppRemote.getPlayerApi().pause();
+            buttonImage.setBackgroundResource(R.drawable.play_music);
+            isPlaying = false;
         }
     }
-
-    private void setTrackWasStarted(PlayerState playerState) {
-        long position = playerState.playbackPosition;
-        long duration = playerState.track.duration;
-        boolean isPlaying = !playerState.isPaused;
-
-        if (!trackWasStarted && position > 0 && duration > 0 && isPlaying) {
-            trackWasStarted = true;
-            buttonImaage.setBackgroundResource(R.drawable.pause_music);
-        }
-    }*/
 }
