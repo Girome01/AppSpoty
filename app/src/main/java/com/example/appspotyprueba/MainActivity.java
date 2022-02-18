@@ -31,6 +31,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         buttonImage = (ImageView) findViewById(R.id.bPlayPause);
+        buttonImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isPlaying) {
+                    mSpotifyAppRemote.getPlayerApi().resume();
+                    buttonImage.setBackgroundResource(R.drawable.pause_music);
+                    isPlaying = true;
+                } else {
+                    mSpotifyAppRemote.getPlayerApi().pause();
+                    buttonImage.setBackgroundResource(R.drawable.play_music);
+                    isPlaying = false;
+                }
+            }
+        });
     }
 
     @Override
@@ -87,17 +101,5 @@ public class MainActivity extends AppCompatActivity {
                         buttonImage.setBackgroundResource(R.drawable.pause_music);
                     }
                 });
-    }
-
-    private void onClickBPlayPause(View player){
-        if(!isPlaying) {
-            mSpotifyAppRemote.getPlayerApi().resume();
-            buttonImage.setBackgroundResource(R.drawable.pause_music);
-            isPlaying = true;
-        }else{
-            mSpotifyAppRemote.getPlayerApi().pause();
-            buttonImage.setBackgroundResource(R.drawable.play_music);
-            isPlaying = false;
-        }
     }
 }
