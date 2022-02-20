@@ -7,6 +7,7 @@ import android.renderscript.ScriptGroup;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -25,24 +26,46 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isPlaying = false;
 
-    ImageView buttonImage;
+    ImageView buttonPlayPause;
+    ImageView buttonNext;
+    ImageView buttonPrevious;
+    TextView cancionName;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        buttonImage = (ImageView) findViewById(R.id.bPlayPause);
-        buttonImage.setOnClickListener(new View.OnClickListener() {
+
+        buttonPlayPause = (ImageView) findViewById(R.id.bPlayPause);
+        buttonNext = (ImageView) findViewById(R.id.nextButtom);
+        buttonPrevious = (ImageView) findViewById(R.id.previousButtom);
+        cancionName = (TextView) findViewById(R.id.textview_first);
+
+        buttonPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!isPlaying) {
                     mSpotifyAppRemote.getPlayerApi().resume();
-                    buttonImage.setBackgroundResource(R.drawable.pause_music);
+                    buttonPlayPause.setBackgroundResource(R.drawable.pause_music);
                     isPlaying = true;
                 } else {
                     mSpotifyAppRemote.getPlayerApi().pause();
-                    buttonImage.setBackgroundResource(R.drawable.play_music);
+                    buttonPlayPause.setBackgroundResource(R.drawable.play_music);
                     isPlaying = false;
                 }
+            }
+        });
+
+        buttonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSpotifyAppRemote.getPlayerApi().skipNext();
+            }
+        });
+
+        buttonPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSpotifyAppRemote.getPlayerApi().skipPrevious();
             }
         });
     }
@@ -82,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected(){
-        // Play a playlist 6IyPKJq69D0Um2AOwprVbn
+        // Play a playlist spotify:playlist:6IyPKJq69D0Um2AOwprVbn
         mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:6IyPKJq69D0Um2AOwprVbn");
 
         // Subscribe to PlayerState
@@ -90,15 +113,16 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeToPlayerState()
                 .setEventCallback(playerState -> {
                     final Track track = playerState.track;
+                    cancionName.setText(playerState.track.name);
                     if (track != null) {
                         Log.d("MainActivity", track.name + " by " + track.artist.name);
                     }
                     if(playerState.isPaused){
                         isPlaying = false;
-                        buttonImage.setBackgroundResource(R.drawable.play_music);
+                        buttonPlayPause.setBackgroundResource(R.drawable.play_music);
                     }else{
                         isPlaying = true;
-                        buttonImage.setBackgroundResource(R.drawable.pause_music);
+                        buttonPlayPause.setBackgroundResource(R.drawable.pause_music);
                     }
                 });
     }
